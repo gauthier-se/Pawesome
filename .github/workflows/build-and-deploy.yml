@@ -64,17 +64,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            cd /var/www/pawesome
-            docker pull ghcr.io/gutsey68/pawesome:main
-            docker compose down
-            docker compose up -d --remove-orphans
-
-
+      - name: Trigger Dokploy Redeploy
+        if: success()
+        run: curl -X POST ${{ secrets.DOKPLOY_WEBHOOK_URL }}
